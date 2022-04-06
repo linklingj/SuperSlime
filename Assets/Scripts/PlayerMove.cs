@@ -39,13 +39,15 @@ public class PlayerMove : MonoBehaviour
     {
         float speed = (grounded)? Movespeed : airSpeed;
         //바라봐야할 방향을 지정
-        float targetAngle = Mathf.Atan2(PlayerMovementInput.x, PlayerMovementInput.z) * Mathf.Rad2Deg + PlayerCamera.eulerAngles.y;
+        float targetAngle = Mathf.Atan2(PlayerMovementInput.x, PlayerMovementInput.z) * Mathf.Rad2Deg; //+ PlayerCamera.eulerAngles.y;
+        if(PlayerMovementInput.magnitude > 0.1f)
+            targetAngle += PlayerCamera.eulerAngles.y;
         //바라봐야할 방향까지 자연스럽게 변하도록 함
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
         //현재 바라보고 있는 방향을 기준으로 움직일 실질적 방향을 구함
-        Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward * speed * Time.deltaTime;
+        Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward * speed * Time.deltaTime * PlayerMovementInput.magnitude * 100f;
         //이 게임오브젝트를 움직임
         PlayerBody.velocity = new Vector3(moveDir.x, rootRigidbody.velocity.y, moveDir.z);
         //루트노드가 이 게임오브젝트를 자연스럽게 따라가도록 함
